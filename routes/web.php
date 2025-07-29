@@ -12,5 +12,5 @@ Route::get('/db', function () {
     }
 });
 Route::get('/', function () {
-    return view('welcome');
+    return view('signup');
 });
