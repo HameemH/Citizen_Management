@@ -8,7 +8,29 @@
   <style>
     /* Main Background: Linear gradient for a soft, modern look */
     body {
-        background: linear-gradient(145deg, #d3d8ff, #eef1ff);
+        backgrou      <!-- Logout button functionality -->
+      const logoutButton = document.getElementById('logoutButton');
+      if (logoutButton) {
+        logoutButton.addEventListener('click', function(event) {
+          event.preventDefault(); // Prevent default button behavior
+          const confirmLogout = confirm('Are you sure you want to log out?');
+          if (confirmLogout) {
+            // Create and submit logout form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("logout") }}';
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        });
+      }adient(145deg, #d3d8ff, #eef1ff);
     }
 
     /* Custom styles for a more "3D-ish" feel (card hover effects are fine as is) */
@@ -124,7 +146,7 @@
     </aside>
 
     <main class="flex-1 p-8 overflow-auto bg-[#eef1ff]">
-      <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Welcome, Admin!</h1>
+      <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Welcome, {{ auth()->user()->name ?? 'Admin' }}!</h1>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div id="pendingVerificationsCard" class="card-hover-effect bg-white p-6 rounded-xl shadow-lg border border-gray-100 transform hover:-translate-y-1" data-modal-target="pendingVerificationsModal">

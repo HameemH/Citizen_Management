@@ -11,7 +11,29 @@
         background-color: #F5F7FA;
     }
 
-    /* Custom styles for a more "3D-ish" feel (card hover effects) */
+    /* C      <!-- Logout button functionality -->
+      const logoutButton = document.getElementById('logoutButton');
+      if (logoutButton) {
+        logoutButton.addEventListener('click', function(event) {
+          event.preventDefault(); // Prevent default button behavior
+          const confirmLogout = confirm('Are you sure you want to log out?');
+          if (confirmLogout) {
+            // Create and submit logout form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("logout") }}';
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            
+            form.appendChild(csrfToken);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        });
+      }for a more "3D-ish" feel (card hover effects) */
     .card-hover-effect {
       transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
       backface-visibility: hidden; /* Helps prevent flickering during transform */
@@ -126,7 +148,24 @@
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-auto bg-[#F5F7FA]">
-      <h1 class="text-3xl font-extrabold text-[#333333] mb-8">Welcome, Citizen!</h1>
+      <h1 class="text-3xl font-extrabold text-[#333333] mb-8">Welcome, {{ auth()->user()->name ?? 'Citizen' }}!</h1>
+      
+      @if(auth()->user()->verification_status === 'pending')
+      <div class="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
+        <h3 class="text-yellow-800 font-semibold">⏳ Verification Pending</h3>
+        <p class="text-yellow-700">Your account is awaiting verification by an administrator. Some features may be limited until verification is complete.</p>
+      </div>
+      @elseif(auth()->user()->verification_status === 'verified')
+      <div class="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
+        <h3 class="text-green-800 font-semibold">✅ Account Verified</h3>
+        <p class="text-green-700">Your account has been verified. You now have full access to all services.</p>
+      </div>
+      @elseif(auth()->user()->verification_status === 'rejected')
+      <div class="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
+        <h3 class="text-red-800 font-semibold">❌ Verification Rejected</h3>
+        <p class="text-red-700">Your account verification was rejected. Please contact support for assistance.</p>
+      </div>
+      @endif
 
       <!-- Dashboard Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
