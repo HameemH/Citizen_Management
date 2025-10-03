@@ -1,120 +1,234 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Citizen Profile</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      background: linear-gradient(145deg, #d3d8ff, #eef1ff);
-    }
-  </style>
-</head>
-<body class="min-h-screen flex items-center justify-center font-sans">
+@extends('layouts.citizen')
 
-  <div class="w-full max-w-3xl mx-auto p-6">
+@section('title', 'My Profile')
+@section('page-title', 'Citizen Profile')
 
-    <!-- Profile Card -->
-    <div class="bg-[#e8ebff] rounded-[30px] shadow-[10px_10px_20px_#c2c5d6,_-10px_-10px_20px_#ffffff] p-8">
-      
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-        <img src="https://picsum.photos/200" alt="Citizen Photo" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-indigo-500 shadow-[6px_6px_12px_#c2c5d6,_-6px_-6px_12px_#ffffff]">
-        
-        <div class="text-center md:text-left">
-          <h1 class="text-2xl font-extrabold text-gray-800">Jane Doe</h1>
-          <p class="text-sm text-gray-600 mt-1">Citizen ID: <span class="font-semibold text-indigo-600">C1234567</span></p>
-          
-          <!-- Contact -->
-          <div class="mt-4 text-gray-700 space-y-2 text-sm">
-            <p class="flex items-center justify-center md:justify-start">
-              📞 (555) 123-4567
-            </p>
-            <p class="flex items-center justify-center md:justify-start">
-              ✉️ jane.doe@example.com
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Navbar Buttons -->
-      <div class="mt-8 flex gap-3 justify-center flex-wrap">
-        <button data-tab="profile" class="tab-btn px-4 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-indigo-600 font-semibold">Profile</button>
-        <button data-tab="property" class="tab-btn px-4 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-gray-800 font-semibold">Property</button>
-        <button data-tab="tax" class="tab-btn px-4 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-gray-800 font-semibold">Tax Info</button>
-        <button data-tab="others" class="tab-btn px-4 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-gray-800 font-semibold">Others</button>
-      </div>
-
-      <!-- Details Sections -->
-      <div class="mt-6">
-        <!-- Profile Details -->
-        <div id="profile" class="tab-content">
-          <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Profile Details</h2>
-          <p><strong class="text-indigo-600">DOB:</strong> January 1, 1985</p>
-          <p><strong class="text-indigo-600">Address:</strong> 123 Main Street, Dhaka</p>
-          <p><strong class="text-indigo-600">Gender:</strong> Female</p>
-          <p><strong class="text-indigo-600">Occupation:</strong> Software Engineer</p>
+@section('content')
+<div class="space-y-6">
+    <!-- Profile Header -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900">My Profile</h3>
+                    <p class="text-sm text-gray-600">Manage your personal information and verification status</p>
+                </div>
+                <div>
+                    @if(Auth::user()->verification_status === 'verified')
+                        <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            ✓ Verified
+                        </span>
+                    @elseif(Auth::user()->verification_status === 'pending')
+                        <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            ⏳ Pending
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            ❌ Not Verified
+                        </span>
+                    @endif
+                </div>
+            </div>
         </div>
 
-        <!-- Property Details -->
-        <div id="property" class="tab-content hidden">
-          <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Property Details</h2>
-          <p><strong class="text-indigo-600">Property ID:</strong> P-98765</p>
-          <p><strong class="text-indigo-600">Type:</strong> Residential</p>
-          <p><strong class="text-indigo-600">Size:</strong> 2000 sqft</p>
-          <p><strong class="text-indigo-600">Location:</strong> Gulshan, Dhaka</p>
-        </div>
+        <!-- Profile Information -->
+        <div class="px-6 py-6">
+            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <!-- Personal Information -->
+                <div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h4>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->name }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email Address</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Phone Number</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->phone ?? 'Not provided' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">National ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->national_id ?? 'Not provided' }}</dd>
+                        </div>
+                    </dl>
+                </div>
 
-        <!-- Tax Information -->
-        <div id="tax" class="tab-content hidden">
-          <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Tax Information</h2>
-          <p><strong class="text-indigo-600">Tax ID:</strong> TX-445566</p>
-          <p><strong class="text-indigo-600">Last Paid:</strong> March 2025</p>
-          <p><strong class="text-indigo-600">Pending Dues:</strong> None</p>
-          <p><strong class="text-indigo-600">Annual Tax:</strong> $500</p>
-        </div>
+                <!-- Account Information -->
+                <div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Account Information</h4>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Account Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900 capitalize">{{ Auth::user()->role }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Verification Status</dt>
+                            <dd class="mt-1 text-sm text-gray-900 capitalize">{{ Auth::user()->verification_status }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->created_at->format('F d, Y') }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Last Updated</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ Auth::user()->updated_at->format('F d, Y') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
 
-        <!-- Other Requirements -->
-        <div id="others" class="tab-content hidden">
-          <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Other Requirements</h2>
-          <p><strong class="text-indigo-600">Voter ID:</strong> V123456789</p>
-          <p><strong class="text-indigo-600">National ID:</strong> NID-998877</p>
-          <p><strong class="text-indigo-600">Status:</strong> Active</p>
+            <!-- Action Buttons -->
+            <div class="mt-8 flex justify-end space-x-3">
+                <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Edit Profile
+                </button>
+                @if(Auth::user()->verification_status !== 'verified')
+                <button type="button" class="bg-green-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    Apply for Verification
+                </button>
+                @endif
+            </div>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="mt-6 flex gap-4 justify-center">
-        <button class="flex-1 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-gray-800 font-semibold hover:scale-105 transition">
-          Edit
-        </button>
-        <button class="flex-1 py-2 rounded-full bg-[#e8ebff] shadow-[4px_4px_8px_#c2c5d6,_-4px_-4px_8px_#ffffff] text-red-600 font-semibold hover:scale-105 transition">
-          Logout
-        </button>
-      </div>
     </div>
 
-    <!-- Footer -->
-    <p class="text-[11px] text-gray-500 mt-6 text-center">© 2025 Citizen Management Software</p>
+    @if(Auth::user()->verification_status !== 'verified')
+    <!-- Verification Guide -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Verification Requirements</h3>
+            <p class="text-sm text-gray-600">Complete these steps to get your citizen verification</p>
+        </div>
+        <div class="px-6 py-6">
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="flex items-center justify-center h-8 w-8 rounded-full {{ Auth::user()->national_id ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-400' }}">
+                            @if(Auth::user()->national_id)
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            @else
+                                <span class="text-sm font-medium">1</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-gray-900">Provide National ID</h4>
+                        <p class="text-sm text-gray-600">Submit your valid Bangladeshi National ID number for verification</p>
+                    </div>
+                </div>
 
-  </div>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-400">
+                            <span class="text-sm font-medium">2</span>
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-gray-900">NID Verification</h4>
+                        <p class="text-sm text-gray-600">Your NID will be verified against the national database</p>
+                    </div>
+                </div>
 
-  <!-- Tab Switching Script -->
-  <script>
-    const tabBtns = document.querySelectorAll(".tab-btn");
-    const contents = document.querySelectorAll(".tab-content");
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-400">
+                            <span class="text-sm font-medium">3</span>
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-gray-900">Admin Review</h4>
+                        <p class="text-sm text-gray-600">Our administrators will review and approve your verification</p>
+                    </div>
+                </div>
 
-    tabBtns.forEach(btn => {
-      btn.addEventListener("click", () => {
-        // Reset all
-        tabBtns.forEach(b => b.classList.remove("text-indigo-600"));
-        contents.forEach(c => c.classList.add("hidden"));
-        // Activate clicked
-        btn.classList.add("text-indigo-600");
-        document.getElementById(btn.dataset.tab).classList.remove("hidden");
-      });
-    });
-  </script>
-</body>
-</html>
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="flex items-center justify-center h-8 w-8 rounded-full bg-gray-100 text-gray-400">
+                            <span class="text-sm font-medium">4</span>
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="text-sm font-medium text-gray-900">Access All Services</h4>
+                        <p class="text-sm text-gray-600">Once verified, you can access all citizen services</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Available Services -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Available Services</h3>
+            <p class="text-sm text-gray-600">Services based on your current verification status</p>
+        </div>
+        <div class="px-6 py-6">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <!-- Property Management -->
+                <div class="border rounded-lg p-4 {{ Auth::user()->verification_status === 'verified' ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50' }}">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium {{ Auth::user()->verification_status === 'verified' ? 'text-green-900' : 'text-gray-900' }}">Property Management</h4>
+                            <p class="text-sm {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ Auth::user()->verification_status === 'verified' ? 'Available' : 'Requires verification' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax Payment -->
+                <div class="border rounded-lg p-4 {{ Auth::user()->verification_status === 'verified' ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50' }}">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium {{ Auth::user()->verification_status === 'verified' ? 'text-green-900' : 'text-gray-900' }}">Tax Payment</h4>
+                            <p class="text-sm {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ Auth::user()->verification_status === 'verified' ? 'Available' : 'Requires verification' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complaint Filing -->
+                <div class="border rounded-lg p-4 border-green-200 bg-green-50">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                        </svg>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-green-900">File Complaints</h4>
+                            <p class="text-sm text-green-600">Available to all citizens</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Services -->
+                <div class="border rounded-lg p-4 {{ Auth::user()->verification_status === 'verified' ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-gray-50' }}">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium {{ Auth::user()->verification_status === 'verified' ? 'text-green-900' : 'text-gray-900' }}">Document Services</h4>
+                            <p class="text-sm {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-500' }}">
+                                {{ Auth::user()->verification_status === 'verified' ? 'Available' : 'Requires verification' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
