@@ -69,4 +69,64 @@ class User extends Authenticatable
     {
         return $this->verification_status === 'verified';
     }
+
+    /**
+     * Check if user's NID is blocked/fake
+     */
+    public function isNidBlocked()
+    {
+        if (empty($this->national_id)) {
+            return false;
+        }
+        
+        return \App\Models\FakeNid::isBlocked($this->national_id);
+    }
+
+    /**
+     * Get the reason why user's NID is blocked
+     */
+    public function getNidBlockedReason()
+    {
+        if (empty($this->national_id)) {
+            return null;
+        }
+        
+        return \App\Models\FakeNid::getBlockedReason($this->national_id);
+    }
+
+    /**
+     * Check if user's NID is available for verification
+     */
+    public function isNidAvailableForVerification()
+    {
+        if (empty($this->national_id)) {
+            return false;
+        }
+        
+        return \App\Models\FakeNid::isAvailableForVerification($this->national_id);
+    }
+
+    /**
+     * Get NID verification status
+     */
+    public function getNidVerificationStatus()
+    {
+        if (empty($this->national_id)) {
+            return ['status' => 'no_nid', 'message' => 'No NID provided'];
+        }
+        
+        return \App\Models\FakeNid::getVerificationStatus($this->national_id);
+    }
+
+    /**
+     * Mark user's NID as verified
+     */
+    public function markNidAsVerified($verifiedByUserId)
+    {
+        if (empty($this->national_id)) {
+            return false;
+        }
+        
+        return \App\Models\FakeNid::markAsVerified($this->national_id, $verifiedByUserId);
+    }
 }
