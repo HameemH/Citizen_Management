@@ -8,6 +8,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 h-full">
+    @php
+        $currentUser = Auth::user();
+        $isVerified = $currentUser->verification_status === 'verified';
+        $hasPendingRequest = $currentUser->verification_status === 'pending' && $currentUser->verification_requested_at;
+    @endphp
     <div class="flex min-h-screen h-full bg-gray-100">
         <!-- Citizen Sidebar -->
         <div class="hidden md:flex md:w-64 md:flex-col">
@@ -21,17 +26,17 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-medium text-white">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                <span class="text-sm font-medium text-white">{{ substr($currentUser->name, 0, 1) }}</span>
                             </div>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
+                            <p class="text-sm font-medium text-white">{{ $currentUser->name }}</p>
                             <p class="text-xs text-green-200">
-                                @if(Auth::user()->verification_status === 'verified')
+                                @if($isVerified)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                         ✓ Verified
                                     </span>
-                                @elseif(Auth::user()->verification_status === 'pending')
+                                @elseif($hasPendingRequest)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
                                         ⏳ Pending
                                     </span>
@@ -64,9 +69,9 @@
                         My Profile
                     </a>
 
-                    @if(Auth::user()->verification_status !== 'verified')
-                    <a href="#" 
-                       class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-green-100 hover:bg-green-600">
+                    @if(!$isVerified)
+                    <a href="{{ route('verification.create') }}" 
+                       class="group flex items-center px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('verification.*') ? 'bg-green-800 text-white' : 'text-green-100 hover:bg-green-600' }}">
                         <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
@@ -136,8 +141,8 @@
                         <h2 class="ml-2 text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600">Welcome, {{ Auth::user()->name }}!</span>
-                        @if(Auth::user()->verification_status === 'verified')
+                        <span class="text-sm text-gray-600">Welcome, {{ $currentUser->name }}!</span>
+                        @if($isVerified)
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 ✓ Verified Citizen
                             </span>

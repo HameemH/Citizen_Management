@@ -21,6 +21,23 @@ class User extends Authenticatable
         'role',
         'verification_status',
         'password',
+        'nid_number',
+        'full_name',
+        'date_of_birth',
+        'father_name',
+        'mother_name',
+        'permanent_address',
+        'present_address',
+        'phone_number',
+        'nid_front_image',
+        'nid_back_image',
+        'passport_photo',
+        'verification_requested_at',
+        'verified_at',
+        'verified_by',
+        'rejected_at',
+        'rejected_by',
+        'rejection_reason',
     ];
 
     /**

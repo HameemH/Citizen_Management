@@ -32,6 +32,8 @@ class UserSeeder extends Seeder
             'verification_status' => 'verified',
             'password' => Hash::make('citizen123'),
             'email_verified_at' => now(),
+            'verification_requested_at' => now()->subDays(5),
+            'verified_at' => now()->subDays(2),
         ]);
 
         // Create Pending Citizen
@@ -42,6 +44,7 @@ class UserSeeder extends Seeder
             'verification_status' => 'pending',
             'password' => Hash::make('citizen123'),
             'email_verified_at' => now(),
+            'verification_requested_at' => now()->subDay(),
         ]);
 
         // Create Rejected Citizen
@@ -52,6 +55,8 @@ class UserSeeder extends Seeder
             'verification_status' => 'rejected',
             'password' => Hash::make('citizen123'),
             'email_verified_at' => now(),
+            'verification_requested_at' => now()->subDays(3),
+            'rejected_at' => now()->subDay(),
         ]);
 
         // Create Additional Citizens for Testing
@@ -62,6 +67,7 @@ class UserSeeder extends Seeder
             'verification_status' => 'pending',
             'password' => Hash::make('citizen123'),
             'email_verified_at' => now(),
+            'verification_requested_at' => now()->subHours(6),
         ]);
 
         User::create([
@@ -71,6 +77,8 @@ class UserSeeder extends Seeder
             'verification_status' => 'verified',
             'password' => Hash::make('citizen123'),
             'email_verified_at' => now(),
+            'verification_requested_at' => now()->subDays(10),
+            'verified_at' => now()->subDays(7),
         ]);
 
         $this->command->info('Users seeded successfully!');

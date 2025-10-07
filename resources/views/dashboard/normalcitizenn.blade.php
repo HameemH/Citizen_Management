@@ -4,6 +4,14 @@
 @section('page-title', 'My Dashboard')
 
 @section('content')
+@php
+    $currentUser = Auth::user();
+    $isVerified = $currentUser->verification_status === 'verified';
+    $hasPendingRequest = $currentUser->verification_status === 'pending' && $currentUser->verification_requested_at;
+    $verificationStatusLabel = $isVerified
+        ? 'verified'
+        : ($hasPendingRequest ? 'pending review' : 'not started');
+@endphp
 <div class="space-y-6">
     <!-- Welcome Message -->
     <div class="bg-white shadow rounded-lg p-6">
@@ -15,19 +23,19 @@
                     </svg>
                 </div>
                 <div class="ml-5">
-                    <h1 class="text-2xl font-bold text-gray-900">Welcome, {{ Auth::user()->name }}!</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">Welcome, {{ $currentUser->name }}!</h1>
                     <p class="text-gray-600">Manage your citizen services and documents from your dashboard.</p>
                 </div>
             </div>
             <div class="text-right">
-                @if(Auth::user()->verification_status === 'verified')
+                @if($isVerified)
                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
                         Verified Citizen
                     </span>
-                @elseif(Auth::user()->verification_status === 'pending')
+                @elseif($hasPendingRequest)
                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                         <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
@@ -46,7 +54,7 @@
         </div>
     </div>
 
-    @if(Auth::user()->verification_status !== 'verified')
+    @if(!$isVerified)
     <!-- Verification Alert -->
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
         <div class="flex">
@@ -57,11 +65,11 @@
             </div>
             <div class="ml-3">
                 <p class="text-sm text-yellow-700">
-                    @if(Auth::user()->verification_status === 'pending')
+                    @if($hasPendingRequest)
                         Your verification is currently being processed. You will be notified once it's completed.
                     @else
                         You need to complete your citizen verification to access all services. 
-                        <a href="#" class="font-medium underline text-yellow-700 hover:text-yellow-600">Apply for verification now</a>
+                        <a href="{{ route('verification.create') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">Apply for verification now</a>
                     @endif
                 </p>
             </div>
@@ -83,7 +91,7 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Profile Status</dt>
-                            <dd class="text-lg font-medium text-gray-900 capitalize">{{ Auth::user()->verification_status }}</dd>
+                            <dd class="text-lg font-medium text-gray-900 capitalize">{{ $verificationStatusLabel }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -157,7 +165,7 @@
                 <p class="text-sm text-gray-600">Complete your verification to access all services</p>
             </div>
             <div class="p-6">
-                @if(Auth::user()->verification_status === 'verified')
+                @if($isVerified)
                     <div class="text-center">
                         <svg class="mx-auto h-12 w-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -165,7 +173,7 @@
                         <h3 class="mt-2 text-sm font-medium text-gray-900">You are verified!</h3>
                         <p class="mt-1 text-sm text-gray-500">Your citizen verification is complete.</p>
                     </div>
-                @elseif(Auth::user()->verification_status === 'pending')
+                @elseif($hasPendingRequest)
                     <div class="text-center">
                         <svg class="mx-auto h-12 w-12 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -181,9 +189,9 @@
                         <h3 class="mt-2 text-sm font-medium text-gray-900">Complete Verification</h3>
                         <p class="mt-1 text-sm text-gray-500">Submit your NID for verification to access all citizen services.</p>
                         <div class="mt-4">
-                            <button class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">
+                            <a href="{{ route('verification.create') }}" class="inline-flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">
                                 Apply for Verification
-                            </button>
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -214,13 +222,13 @@
                                             <p class="text-sm text-gray-500">Account created successfully</p>
                                         </div>
                                         <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                                            <time>{{ Auth::user()->created_at->format('M d') }}</time>
+                                            <time>{{ $currentUser->created_at->format('M d') }}</time>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </li>
-                        @if(Auth::user()->verification_status !== 'rejected')
+                        @if($currentUser->verification_status !== 'rejected')
                         <li>
                             <div class="relative">
                                 <div class="relative flex space-x-3">
@@ -260,7 +268,7 @@
                 <!-- Property Registration -->
                 <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
                     <div class="flex-shrink-0">
-                        <svg class="h-10 w-10 {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-10 w-10 {{ $isVerified ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                     </div>
@@ -268,7 +276,7 @@
                         <span class="absolute inset-0" aria-hidden="true"></span>
                         <p class="text-sm font-medium text-gray-900">Property Registration</p>
                         <p class="text-sm text-gray-500 truncate">
-                            {{ Auth::user()->verification_status === 'verified' ? 'Register your properties' : 'Verification required' }}
+                            {{ $isVerified ? 'Register your properties' : 'Verification required' }}
                         </p>
                     </div>
                 </div>
@@ -276,7 +284,7 @@
                 <!-- Tax Payment -->
                 <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
                     <div class="flex-shrink-0">
-                        <svg class="h-10 w-10 {{ Auth::user()->verification_status === 'verified' ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="h-10 w-10 {{ $isVerified ? 'text-green-600' : 'text-gray-400' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
                         </svg>
                     </div>
@@ -284,7 +292,7 @@
                         <span class="absolute inset-0" aria-hidden="true"></span>
                         <p class="text-sm font-medium text-gray-900">Tax Payment</p>
                         <p class="text-sm text-gray-500 truncate">
-                            {{ Auth::user()->verification_status === 'verified' ? 'Pay your taxes online' : 'Verification required' }}
+                            {{ $isVerified ? 'Pay your taxes online' : 'Verification required' }}
                         </p>
                     </div>
                 </div>

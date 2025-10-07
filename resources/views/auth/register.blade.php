@@ -26,7 +26,7 @@
         </div>
 
         <!-- Signup Form -->
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register.post') }}">
             @csrf
 
             <!-- Full Name -->

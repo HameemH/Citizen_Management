@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VerificationController;
 
 // Database test route
 Route::get('/db', function () {
@@ -15,8 +16,11 @@ Route::get('/db', function () {
 });
 
 // Authentication Routes
-Route::get('/', [AuthController::class, 'showRegistration'])->name('register');
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/login', function () {
+    return redirect()->route('login');
+});
+Route::get('/register', [AuthController::class, 'showRegistration'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
@@ -38,4 +42,19 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
     Route::get('/profile', function () {
         return view('dashboard.citizenprofile');
     })->name('profile');
+});
+
+// Verification Routes
+Route::middleware(['auth'])->group(function () {
+    // Citizen verification routes
+    Route::get('/verification/apply', [VerificationController::class, 'create'])->name('verification.create')->middleware('citizen');
+    Route::post('/verification/apply', [VerificationController::class, 'store'])->name('verification.store')->middleware('citizen');
+    
+    // Admin verification routes
+    Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/verification', [VerificationController::class, 'adminIndex'])->name('verification.index');
+        Route::get('/verification/{user}', [VerificationController::class, 'show'])->name('verification.show');
+        Route::post('/verification/{user}/approve', [VerificationController::class, 'approve'])->name('verification.approve');
+        Route::post('/verification/{user}/reject', [VerificationController::class, 'reject'])->name('verification.reject');
+    });
 });
