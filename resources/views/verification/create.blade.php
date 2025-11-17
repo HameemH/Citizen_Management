@@ -4,6 +4,14 @@
 @section('page-title', 'Verification Application')
 
 @section('content')
+@php
+    $currentUser = Auth::user();
+    $prefillData = $prefillData ?? [];
+    $userDateOfBirth = optional($currentUser)->date_of_birth;
+    if ($userDateOfBirth instanceof \Carbon\Carbon) {
+        $userDateOfBirth = $userDateOfBirth->format('Y-m-d');
+    }
+@endphp
 <div class="max-w-4xl mx-auto">
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
@@ -19,6 +27,12 @@
             </div>
         </div>
     </div>
+
+    @if(session('success'))
+        <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4">
+            <p class="text-sm text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
 
     <!-- Instructions -->
     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
@@ -59,9 +73,16 @@
                         <label for="nid_number" class="block text-sm font-medium text-gray-700 mb-2">
                             National ID Number <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="nid_number" name="nid_number" value="{{ old('nid_number') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('nid_number') border-red-500 @enderror"
-                               placeholder="Enter 10-digit NID number" maxlength="10" required>
+                        <div class="flex flex-col md:flex-row md:space-x-3 space-y-3 md:space-y-0">
+                            <input type="text" id="nid_number" name="nid_number" value="{{ old('nid_number', $prefillData['nid_number'] ?? optional($currentUser)->nid_number) }}"
+                                   class="flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('nid_number') ? 'border-red-500' : 'border-gray-300' }}"
+                                   placeholder="Enter 10-digit NID number" maxlength="10" required>
+                            <button type="submit" formaction="{{ route('verification.prefill') }}" formmethod="POST" formnovalidate
+                                    class="md:w-auto w-full inline-flex items-center justify-center px-4 py-2 border border-green-600 text-green-700 font-semibold rounded-lg hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                Auto-fill from registry
+                            </button>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">Enter your NID and click "Auto-fill" to load official data instantly.</p>
                         @error('nid_number')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -72,8 +93,8 @@
                         <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
                             Full Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="full_name" name="full_name" value="{{ old('full_name') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('full_name') border-red-500 @enderror"
+                        <input type="text" id="full_name" name="full_name" value="{{ old('full_name', $prefillData['full_name'] ?? optional($currentUser)->full_name) }}"
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('full_name') ? 'border-red-500' : 'border-gray-300' }}"
                                placeholder="Enter your full name as per NID" required>
                         @error('full_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -85,8 +106,8 @@
                         <label for="date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">
                             Date of Birth <span class="text-red-500">*</span>
                         </label>
-                        <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('date_of_birth') border-red-500 @enderror"
+               <input type="date" id="date_of_birth" name="date_of_birth" value="{{ old('date_of_birth', $prefillData['date_of_birth'] ?? $userDateOfBirth) }}"
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('date_of_birth') ? 'border-red-500' : 'border-gray-300' }}"
                                required>
                         @error('date_of_birth')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -98,8 +119,8 @@
                         <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-2">
                             Phone Number <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('phone_number') border-red-500 @enderror"
+                        <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number', $prefillData['phone_number'] ?? optional($currentUser)->phone_number) }}"
+                               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('phone_number') ? 'border-red-500' : 'border-gray-300' }}"
                                placeholder="01XXXXXXXXX" maxlength="11" required>
                         @error('phone_number')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -112,8 +133,8 @@
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
                         Email Address <span class="text-red-500">*</span>
                     </label>
-                    <input type="email" id="email" name="email" value="{{ old('email', Auth::user()->email) }}" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('email') border-red-500 @enderror"
+                    <input type="email" id="email" name="email" value="{{ old('email', $prefillData['email'] ?? optional($currentUser)->email) }}"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('email') ? 'border-red-500' : 'border-gray-300' }}"
                            placeholder="your.email@example.com" required>
                     @error('email')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -135,8 +156,8 @@
                         <label for="father_name" class="block text-sm font-medium text-gray-700 mb-2">
                             Father's Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="father_name" name="father_name" value="{{ old('father_name') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('father_name') border-red-500 @enderror"
+               <input type="text" id="father_name" name="father_name" value="{{ old('father_name', $prefillData['father_name'] ?? optional($currentUser)->father_name) }}"
+                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('father_name') ? 'border-red-500' : 'border-gray-300' }}"
                                placeholder="Enter father's full name" required>
                         @error('father_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -148,8 +169,8 @@
                         <label for="mother_name" class="block text-sm font-medium text-gray-700 mb-2">
                             Mother's Name <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" id="mother_name" name="mother_name" value="{{ old('mother_name') }}" 
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('mother_name') border-red-500 @enderror"
+               <input type="text" id="mother_name" name="mother_name" value="{{ old('mother_name', $prefillData['mother_name'] ?? optional($currentUser)->mother_name) }}"
+                   class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('mother_name') ? 'border-red-500' : 'border-gray-300' }}"
                                placeholder="Enter mother's full name" required>
                         @error('mother_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -171,9 +192,9 @@
                     <label for="permanent_address" class="block text-sm font-medium text-gray-700 mb-2">
                         Permanent Address <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="permanent_address" name="permanent_address" rows="3" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('permanent_address') border-red-500 @enderror"
-                              placeholder="Enter your permanent address as per NID" required>{{ old('permanent_address') }}</textarea>
+                    <textarea id="permanent_address" name="permanent_address" rows="3"
+                              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('permanent_address') ? 'border-red-500' : 'border-gray-300' }}"
+                              placeholder="Enter your permanent address as per NID" required>{{ old('permanent_address', $prefillData['permanent_address'] ?? optional($currentUser)->permanent_address) }}</textarea>
                     @error('permanent_address')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -184,9 +205,9 @@
                     <label for="present_address" class="block text-sm font-medium text-gray-700 mb-2">
                         Present Address <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="present_address" name="present_address" rows="3" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('present_address') border-red-500 @enderror"
-                              placeholder="Enter your current residential address" required>{{ old('present_address') }}</textarea>
+                    <textarea id="present_address" name="present_address" rows="3"
+                              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 {{ $errors->has('present_address') ? 'border-red-500' : 'border-gray-300' }}"
+                              placeholder="Enter your current residential address" required>{{ old('present_address', $prefillData['present_address'] ?? optional($currentUser)->present_address) }}</textarea>
                     @error('present_address')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror

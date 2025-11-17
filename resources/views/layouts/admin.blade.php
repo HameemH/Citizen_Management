@@ -8,6 +8,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 h-full">
+    @php
+        $adminDisplayName = Auth::user()->display_name;
+    @endphp
     <div class="flex min-h-screen h-full bg-gray-100">
         <!-- Admin Sidebar -->
         <div class="hidden md:flex md:w-64 md:flex-col">
@@ -21,11 +24,11 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-medium text-white">{{ substr(Auth::user()->name, 0, 1) }}</span>
+                                <span class="text-sm font-medium text-white">{{ substr($adminDisplayName, 0, 1) }}</span>
                             </div>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-white">{{ Auth::user()->name }}</p>
+                            <p class="text-sm font-medium text-white">{{ $adminDisplayName }}</p>
                             <p class="text-xs text-indigo-200">Administrator</p>
                         </div>
                     </div>
@@ -112,7 +115,7 @@
                         <h2 class="ml-2 text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600">Welcome back, {{ Auth::user()->name }}!</span>
+                        <span class="text-sm text-gray-600">Welcome back, {{ $adminDisplayName }}!</span>
                     </div>
                 </div>
             </header>

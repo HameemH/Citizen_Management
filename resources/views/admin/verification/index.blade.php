@@ -4,6 +4,20 @@
 @section('page-title', 'Citizen Verification Requests')
 
 @section('content')
+@php
+    $formatDate = function ($value, $fallback = 'N/A') {
+        if (empty($value)) {
+            return $fallback;
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($value)->format('M d, Y');
+        } catch (\Exception $e) {
+            return $fallback;
+        }
+    };
+@endphp
+
 <div class="space-y-6">
     <!-- Pending Requests Section -->
     <div class="bg-white shadow rounded-lg">
@@ -55,7 +69,7 @@
                             {{ $request->nid_number ?? 'Not provided' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $request->verification_requested_at ? $request->verification_requested_at->format('M d, Y') : 'N/A' }}
+                            {{ $formatDate($request->verification_requested_at) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $request->phone_number ?? 'Not provided' }}
@@ -124,7 +138,7 @@
                             {{ $user->nid_number }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $user->verified_at ? $user->verified_at->format('M d, Y') : 'N/A' }}
+                            {{ $formatDate($user->verified_at) }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

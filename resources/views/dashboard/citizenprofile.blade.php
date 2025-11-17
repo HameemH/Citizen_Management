@@ -6,6 +6,7 @@
 @section('content')
 @php
     $currentUser = Auth::user();
+    $displayName = $currentUser->display_name;
     $isVerified = $currentUser->verification_status === 'verified';
     $hasPendingRequest = $currentUser->verification_status === 'pending' && $currentUser->verification_requested_at;
     $verificationStatusLabel = $isVerified
@@ -48,7 +49,7 @@
                     <dl class="space-y-4">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Full Name</dt>
-                            <dd class="mt-1 text-sm text-gray-900">{{ $currentUser->name }}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $displayName }}</dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Email Address</dt>

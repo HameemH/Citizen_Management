@@ -14,7 +14,7 @@
                 </svg>
             </div>
             <div class="ml-5">
-                <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ Auth::user()->name }}!</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Welcome back, {{ Auth::user()->display_name }}!</h1>
                 <p class="text-gray-600">Here's what's happening with your citizen management system today.</p>
             </div>
         </div>

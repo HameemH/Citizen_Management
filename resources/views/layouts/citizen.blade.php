@@ -10,6 +10,7 @@
 <body class="bg-gray-100 h-full">
     @php
         $currentUser = Auth::user();
+        $displayName = $currentUser->display_name;
         $isVerified = $currentUser->verification_status === 'verified';
         $hasPendingRequest = $currentUser->verification_status === 'pending' && $currentUser->verification_requested_at;
     @endphp
@@ -26,11 +27,11 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                                <span class="text-sm font-medium text-white">{{ substr($currentUser->name, 0, 1) }}</span>
+                                <span class="text-sm font-medium text-white">{{ substr($displayName, 0, 1) }}</span>
                             </div>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm font-medium text-white">{{ $currentUser->name }}</p>
+                            <p class="text-sm font-medium text-white">{{ $displayName }}</p>
                             <p class="text-xs text-green-200">
                                 @if($isVerified)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
@@ -141,7 +142,7 @@
                         <h2 class="ml-2 text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <span class="text-sm text-gray-600">Welcome, {{ $currentUser->name }}!</span>
+                        <span class="text-sm text-gray-600">Welcome, {{ $displayName }}!</span>
                         @if($isVerified)
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 ✓ Verified Citizen

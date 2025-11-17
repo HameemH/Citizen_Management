@@ -6,6 +6,7 @@
 @section('content')
 @php
     $currentUser = Auth::user();
+    $displayName = $currentUser->display_name;
     $isVerified = $currentUser->verification_status === 'verified';
     $hasPendingRequest = $currentUser->verification_status === 'pending' && $currentUser->verification_requested_at;
     $verificationStatusLabel = $isVerified
@@ -23,7 +24,7 @@
                     </svg>
                 </div>
                 <div class="ml-5">
-                    <h1 class="text-2xl font-bold text-gray-900">Welcome, {{ $currentUser->name }}!</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">Welcome, {{ $displayName }}!</h1>
                     <p class="text-gray-600">Manage your citizen services and documents from your dashboard.</p>
                 </div>
             </div>

@@ -13,8 +13,8 @@ class VerificationController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('citizen')->except(['adminIndex', 'approve', 'reject']);
-        $this->middleware('admin')->only(['adminIndex', 'approve', 'reject']);
+        $this->middleware('citizen')->except(['adminIndex', 'show', 'approve', 'reject']);
+        $this->middleware('admin')->only(['adminIndex', 'show', 'approve', 'reject']);
     }
 
     /**
@@ -33,7 +33,49 @@ class VerificationController extends Controller
             return redirect()->route('citizen.dashboard')->with('info', 'Your verification request is already pending review.');
         }
 
-        return view('verification.create');
+        return view('verification.create', [
+            'prefillData' => session('prefillData', []),
+        ]);
+    }
+
+    /**
+     * Prefill verification form fields using Fake NID data
+     */
+    public function prefill(Request $request)
+    {
+        $validated = $request->validate([
+            'nid_number' => 'required|string|size:10|regex:/^[0-9]+$/',
+        ]);
+
+        $nidRecord = FakeNid::where('nid', $validated['nid_number'])->first();
+
+        if (!$nidRecord) {
+            return back()->withErrors(['nid_number' => 'This NID number is not found in our database.'])->withInput();
+        }
+
+        if ($nidRecord->is_verified) {
+            return back()->withErrors(['nid_number' => 'This NID is already verified.'])->withInput();
+        }
+
+        if ($nidRecord->is_blocked) {
+            return back()->withErrors(['nid_number' => 'This NID has been blocked for security reasons.'])->withInput();
+        }
+
+        $prefillData = [
+            'nid_number' => $nidRecord->nid,
+            'full_name' => $nidRecord->name,
+            'date_of_birth' => optional($nidRecord->date_of_birth)->format('Y-m-d'),
+            'father_name' => $nidRecord->father_name,
+            'mother_name' => $nidRecord->mother_name,
+            'permanent_address' => $nidRecord->permanent_address,
+            'present_address' => $nidRecord->present_address,
+        ];
+
+    session()->flash('prefillData', $prefillData);
+
+    $inputPrefill = array_filter($prefillData, fn ($value) => !is_null($value));
+
+    return back()->withInput(array_merge($request->all(), $inputPrefill))->with('success', 'NID data loaded from registry.');
     }
 
     /**
@@ -60,7 +102,7 @@ class VerificationController extends Controller
         ]);
 
         // Check if NID number exists in our fake database
-        $nidRecord = FakeNid::where('nid_number', $validated['nid_number'])->first();
+    $nidRecord = FakeNid::where('nid', $validated['nid_number'])->first();
         
         if (!$nidRecord) {
             return back()->withErrors(['nid_number' => 'This NID number is not found in our database.'])->withInput();
@@ -79,7 +121,9 @@ class VerificationController extends Controller
             return back()->withErrors(['full_name' => 'Full name does not match our NID records.'])->withInput();
         }
 
-        if ($nidRecord->date_of_birth !== $validated['date_of_birth']) {
+        $nidDateOfBirth = optional($nidRecord->date_of_birth)->format('Y-m-d');
+
+        if ($nidDateOfBirth !== $validated['date_of_birth']) {
             return back()->withErrors(['date_of_birth' => 'Date of birth does not match our NID records.'])->withInput();
         }
 
@@ -135,7 +179,7 @@ class VerificationController extends Controller
             return redirect()->route('admin.verification.index')->with('error', 'This user does not have a pending verification request.');
         }
 
-        $nidRecord = FakeNid::where('nid_number', $user->nid_number)->first();
+    $nidRecord = FakeNid::where('nid', $user->nid_number)->first();
 
         return view('admin.verification.show', compact('user', 'nidRecord'));
     }
@@ -150,7 +194,7 @@ class VerificationController extends Controller
         }
 
         // Mark the NID as verified in the fake_nids table
-        FakeNid::where('nid_number', $user->nid_number)->update(['is_verified' => true]);
+    FakeNid::where('nid', $user->nid_number)->update(['is_verified' => true]);
 
         // Update user status
         $user->update([

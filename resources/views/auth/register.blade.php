@@ -29,13 +29,9 @@
         <form method="POST" action="{{ route('register.post') }}">
             @csrf
 
-            <!-- Full Name -->
-            <div class="flex items-center mb-4 px-4 py-3 rounded-full bg-[#e8ebff] shadow-[inset_5px_5px_10px_#c2c5d6,_inset_-5px_-5px_10px_#ffffff]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <input type="text" name="name" placeholder="Full name" value="{{ old('name') }}"
-                       class="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400 text-sm" required />
+            <div class="mb-4 px-4 py-3 rounded-2xl bg-white/40 text-xs text-gray-600">
+                <p>Your display name will be set to <strong>"User Name"</strong> until your identity is verified.</p>
+                <p class="mt-1">You can provide your real information later during the verification process.</p>
             </div>
 
             <!-- Email -->

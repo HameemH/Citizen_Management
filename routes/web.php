@@ -48,6 +48,7 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
 Route::middleware(['auth'])->group(function () {
     // Citizen verification routes
     Route::get('/verification/apply', [VerificationController::class, 'create'])->name('verification.create')->middleware('citizen');
+    Route::post('/verification/prefill', [VerificationController::class, 'prefill'])->name('verification.prefill')->middleware('citizen');
     Route::post('/verification/apply', [VerificationController::class, 'store'])->name('verification.store')->middleware('citizen');
     
     // Admin verification routes

@@ -80,6 +80,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get a friendly display name prioritizing verified data.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        if (!empty($this->full_name)) {
+            return $this->full_name;
+        }
+
+        if (!empty($this->name)) {
+            return $this->name;
+        }
+
+        return 'User Name';
+    }
+
+    /**
      * Check if user is verified
      */
     public function isVerified()
