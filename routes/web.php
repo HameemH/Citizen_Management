@@ -42,6 +42,9 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
     Route::get('/profile', function () {
         return view('dashboard.citizenprofile');
     })->name('profile');
+
+    Route::get('/verification/certificate', [VerificationController::class, 'downloadCertificate'])
+        ->name('verification.certificate');
 });
 
 // Verification Routes
@@ -59,3 +62,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/verification/{user}/reject', [VerificationController::class, 'reject'])->name('verification.reject');
     });
 });
+
+// Public verification status endpoint for QR scans
+Route::get('/verification/status/{user}', [VerificationController::class, 'publicStatus'])
+    ->name('verification.status')
+    ->middleware('signed');

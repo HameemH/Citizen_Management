@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use App\Models\User;
 use App\Models\FakeNid;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VerificationController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('citizen')->except(['adminIndex', 'show', 'approve', 'reject']);
+    $this->middleware('auth')->except(['publicStatus']);
+        $this->middleware('citizen')->except(['adminIndex', 'show', 'approve', 'reject', 'publicStatus']);
         $this->middleware('admin')->only(['adminIndex', 'show', 'approve', 'reject']);
     }
 
@@ -240,5 +243,55 @@ class VerificationController extends Controller
         ]);
 
         return redirect()->route('admin.verification.index')->with('success', 'Verification request rejected.');
+    }
+
+    /**
+     * Download verification certificate as PDF for verified citizens
+     */
+    public function downloadCertificate()
+    {
+        $user = Auth::user();
+
+        if ($user->verification_status !== 'verified') {
+            return redirect()->back()->with('error', 'Certificate is available only after verification.');
+        }
+
+        $certificateNumber = sprintf('VCN-%06d', $user->id);
+        $issuedDate = optional($user->verified_at)->format('F d, Y') ?? now()->format('F d, Y');
+        $qrUrl = URL::temporarySignedRoute('verification.status', now()->addYears(5), ['user' => $user->id]);
+
+        $qrImage = null;
+        $qrResponse = Http::timeout(10)->get('https://api.qrserver.com/v1/create-qr-code/', [
+            'size' => '320x320',
+            'data' => $qrUrl,
+            'margin' => 0,
+        ]);
+
+        if ($qrResponse->successful()) {
+            $qrImage = 'data:image/png;base64,' . base64_encode($qrResponse->body());
+        }
+
+        $pdf = Pdf::loadView('verification.certificate', [
+            'user' => $user,
+            'certificateNumber' => $certificateNumber,
+            'issuedDate' => $issuedDate,
+            'qrImage' => $qrImage,
+            'qrFallbackUrl' => $qrUrl,
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->download('verification-certificate-' . $user->id . '.pdf');
+    }
+
+    /**
+     * Public verification status endpoint used by QR code scans
+     */
+    public function publicStatus(Request $request, User $user)
+    {
+        $status = $user->verification_status === 'verified' ? 'verified' : 'unverified';
+
+        return view('verification.status', [
+            'user' => $user,
+            'status' => $status,
+        ]);
     }
 }

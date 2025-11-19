@@ -173,6 +173,13 @@
                         </svg>
                         <h3 class="mt-2 text-sm font-medium text-gray-900">You are verified!</h3>
                         <p class="mt-1 text-sm text-gray-500">Your citizen verification is complete.</p>
+                        <div class="mt-4">
+                            <a href="{{ route('citizen.verification.certificate') }}"
+                               class="inline-flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">
+                                Download Certificate
+                            </a>
+                            <p class="mt-2 text-xs text-gray-500">PDF includes QR code for instant authenticity checks.</p>
+                        </div>
                     </div>
                 @elseif($hasPendingRequest)
                     <div class="text-center">
