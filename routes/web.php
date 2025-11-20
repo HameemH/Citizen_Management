@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\AdminPropertyController;
 
 // Database test route
 Route::get('/db', function () {
@@ -45,6 +47,19 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
 
     Route::get('/verification/certificate', [VerificationController::class, 'downloadCertificate'])
         ->name('verification.certificate');
+
+    Route::middleware('verified.citizen')->group(function () {
+        // Property browsing & requests
+        Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+        Route::get('/properties/request/add', [PropertyController::class, 'createAddRequest'])->name('properties.request.add');
+        Route::post('/properties/request/add', [PropertyController::class, 'storeAddRequest'])->name('properties.request.add.store');
+        Route::get('/properties/{property}/request/update', [PropertyController::class, 'createUpdateRequest'])->name('properties.request.update');
+        Route::post('/properties/{property}/request/update', [PropertyController::class, 'storeUpdateRequest'])->name('properties.request.update.store');
+        Route::get('/properties/{property}/request/transfer', [PropertyController::class, 'createTransferRequest'])->name('properties.request.transfer');
+        Route::post('/properties/{property}/request/transfer', [PropertyController::class, 'storeTransferRequest'])->name('properties.request.transfer.store');
+        Route::post('/properties/{property}/rental-request', [PropertyController::class, 'submitRentalRequest'])->name('properties.rental-request');
+        Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+    });
 });
 
 // Verification Routes
@@ -60,6 +75,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/verification/{user}', [VerificationController::class, 'show'])->name('verification.show');
         Route::post('/verification/{user}/approve', [VerificationController::class, 'approve'])->name('verification.approve');
         Route::post('/verification/{user}/reject', [VerificationController::class, 'reject'])->name('verification.reject');
+
+        Route::get('/properties', [AdminPropertyController::class, 'index'])->name('properties.index');
+        Route::get('/properties/create', [AdminPropertyController::class, 'create'])->name('properties.create');
+        Route::post('/properties', [AdminPropertyController::class, 'store'])->name('properties.store');
+        Route::get('/properties/{property}/edit', [AdminPropertyController::class, 'edit'])->name('properties.edit');
+        Route::put('/properties/{property}', [AdminPropertyController::class, 'update'])->name('properties.update');
+        Route::delete('/properties/{property}', [AdminPropertyController::class, 'destroy'])->name('properties.destroy');
+
+        Route::get('/properties/requests', [AdminPropertyController::class, 'requests'])->name('properties.requests');
+        Route::post('/properties/requests/{propertyRequest}', [AdminPropertyController::class, 'handleRequest'])->name('properties.requests.handle');
+
+        Route::get('/rental-requests', [AdminPropertyController::class, 'rentalRequests'])->name('properties.rentals');
+        Route::post('/rental-requests/{rentalRequest}', [AdminPropertyController::class, 'handleRental'])->name('rental-requests.handle');
     });
 });
 

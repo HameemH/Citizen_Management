@@ -14,6 +14,12 @@
         : ($hasPendingRequest ? 'pending review' : 'not started');
 @endphp
 <div class="space-y-6">
+    @if(session('status'))
+        <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
+            {{ session('status') }}
+        </div>
+    @endif
+
     <!-- Welcome Message -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between">

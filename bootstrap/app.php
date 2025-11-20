@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'citizen' => \App\Http\Middleware\CitizenMiddleware::class,
+            'verified.citizen' => \App\Http\Middleware\EnsureCitizenVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

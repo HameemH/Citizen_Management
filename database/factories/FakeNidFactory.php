@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -126,12 +127,21 @@ class FakeNidFactory extends Factory
      */
     public function verified(): static
     {
-        return $this->state(fn (array $attributes) => [
-            'is_blocked' => false,
-            'reason' => null,
-            'is_verified' => true,
-            'verified_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'verified_by' => 1, // Assuming admin user ID 1 exists
-        ]);
+        return $this->state(function () {
+            static $verifierId;
+
+            if (!$verifierId) {
+                $verifierId = User::where('role', 'admin')->value('id')
+                    ?? User::orderBy('id')->value('id');
+            }
+
+            return [
+                'is_blocked' => false,
+                'reason' => null,
+                'is_verified' => true,
+                'verified_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
+                'verified_by' => $verifierId,
+            ];
+        });
     }
 }

@@ -10,6 +10,8 @@
 <body class="bg-gray-100 h-full">
     @php
         $adminDisplayName = Auth::user()->display_name;
+        $pendingPropertyRequests = \App\Models\PropertyRequest::where('status', 'pending')->count();
+        $pendingRentalRequests = \App\Models\RentalRequest::where('status', 'pending')->count();
     @endphp
     <div class="flex min-h-screen h-full bg-gray-100">
         <!-- Admin Sidebar -->
@@ -53,13 +55,47 @@
                         Citizen Verification
                     </a>
 
-                    <a href="#" 
-                       class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100 hover:bg-indigo-600">
-                        <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                        Property Management
-                    </a>
+                    <div>
+                        <p class="px-2 text-xs font-semibold text-indigo-200 uppercase tracking-wide">Property Suite</p>
+                                <a href="{{ route('admin.properties.index') }}" 
+                                    class="group mt-1 flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.properties.index', 'admin.properties.create', 'admin.properties.edit') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600' }}">
+                            <span class="flex items-center">
+                                <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"/>
+                                </svg>
+                                Properties
+                            </span>
+                        </a>
+                                <a href="{{ route('admin.properties.requests') }}" 
+                                    class="group mt-1 flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.properties.requests', 'admin.properties.requests.handle') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600' }}">
+                            <span class="flex items-center">
+                                <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h6m5 5H6a2 2 0 01-2-2V5a2 2 0 012-2h7.586a1 1 0 01.707.293l6.414 6.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Property Requests
+                            </span>
+                            @if($pendingPropertyRequests > 0)
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    {{ $pendingPropertyRequests }}
+                                </span>
+                            @endif
+                        </a>
+                                <a href="{{ route('admin.properties.rentals') }}" 
+                                    class="group mt-1 flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.properties.rentals', 'admin.rental-requests.handle') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600' }}">
+                            <span class="flex items-center">
+                                <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4m4 0v5m8-5v5"/>
+                                </svg>
+                                Rental Requests
+                            </span>
+                            @if($pendingRentalRequests > 0)
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    {{ $pendingRentalRequests }}
+                                </span>
+                            @endif
+                        </a>
+                    </div>
 
                     <a href="#" 
                        class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100 hover:bg-indigo-600">
