@@ -32,6 +32,20 @@
             </label>
             <input type="number" step="0.01" name="rent_price" value="{{ $property->rent_price }}" placeholder="Rent price" class="border rounded p-2">
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Assessed Value (BDT)</label>
+                <input type="number" step="0.01" name="assessed_value" value="{{ $property->assessed_value }}" class="mt-1 w-full border rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Land Use</label>
+                <input type="text" name="land_use" value="{{ $property->land_use }}" class="mt-1 w-full border rounded">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Last Valuation Date</label>
+                <input type="date" name="last_valuation_at" value="{{ optional($property->last_valuation_at)->format('Y-m-d') }}" class="mt-1 w-full border rounded">
+            </div>
+        </div>
         <div class="flex justify-end gap-3">
             <a href="{{ route('citizen.properties.show', $property) }}" class="px-4 py-2 border rounded">Cancel</a>
             <button class="px-4 py-2 bg-blue-600 text-white rounded">Submit Update</button>

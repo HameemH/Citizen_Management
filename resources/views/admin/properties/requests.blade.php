@@ -43,6 +43,9 @@
                                 'description' => 'Description',
                                 'is_available_for_rent' => 'Rentable',
                                 'rent_price' => 'Rent Price',
+                                'assessed_value' => 'Assessed Value',
+                                'land_use' => 'Land Use',
+                                'last_valuation_at' => 'Last Valuation',
                             ];
                             $formatValue = function ($field, $value) {
                                 if (is_bool($value)) {
@@ -56,6 +59,12 @@
                                 }
                                 if ($field === 'rent_price') {
                                     return 'BDT ' . number_format((float) $value, 2);
+                                }
+                                if ($field === 'assessed_value') {
+                                    return 'BDT ' . number_format((float) $value, 2);
+                                }
+                                if ($field === 'last_valuation_at') {
+                                    return $value ? \Illuminate\Support\Carbon::parse($value)->format('M d, Y') : '—';
                                 }
                                 return $value;
                             };

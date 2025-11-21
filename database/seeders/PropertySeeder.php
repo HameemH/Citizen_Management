@@ -17,6 +17,7 @@ class PropertySeeder extends Seeder
         }
 
         foreach ($citizens as $index => $citizen) {
+            $baseValue = 3500000 + ($index * 250000);
             Property::create([
                 'owner_id' => $citizen->id,
                 'title' => 'Property #' . ($index + 1),
@@ -29,6 +30,9 @@ class PropertySeeder extends Seeder
                 'is_active' => true,
                 'is_available_for_rent' => $index % 2 === 0,
                 'rent_price' => $index % 2 === 0 ? 15000 + ($index * 1000) : null,
+                'assessed_value' => $baseValue,
+                'land_use' => $index % 2 === 0 ? 'residential' : 'commercial',
+                'last_valuation_at' => now()->subMonths($index + 1),
                 'description' => 'Sample property managed via Property Management module.',
             ]);
         }

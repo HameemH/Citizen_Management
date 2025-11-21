@@ -25,6 +25,9 @@ class PropertyManagementTest extends TestCase
                 'type' => 'residential',
                 'address_line' => '123 Example Street',
                 'city' => 'Dhaka',
+                'assessed_value' => 5500000,
+                'land_use' => 'residential',
+                'last_valuation_at' => '2025-01-01',
             ]);
 
         $response->assertRedirect(route('citizen.properties.index'));
@@ -33,6 +36,11 @@ class PropertyManagementTest extends TestCase
             'type' => 'add',
             'status' => 'pending',
         ]);
+
+        $payload = PropertyRequest::first()->payload;
+        $this->assertEquals(5500000, $payload['assessed_value']);
+        $this->assertEquals('residential', $payload['land_use']);
+        $this->assertEquals('2025-01-01', $payload['last_valuation_at']);
     }
 
     public function test_unverified_citizen_is_redirected_from_property_pages(): void
@@ -57,12 +65,19 @@ class PropertyManagementTest extends TestCase
             ->post(route('admin.properties.store'), [
                 'title' => 'Managed Property',
                 'type' => 'commercial',
+                'assessed_value' => 7500000,
+                'land_use' => 'commercial',
+                'last_valuation_at' => '2025-02-15',
             ]);
 
         $response->assertRedirect(route('admin.properties.index'));
         $this->assertDatabaseHas('properties', [
             'title' => 'Managed Property',
             'type' => 'commercial',
+            'assessed_value' => 7500000,
+            'land_use' => 'commercial',
         ]);
+
+        $this->assertEquals('2025-02-15 00:00:00', Property::first()->last_valuation_at?->format('Y-m-d H:i:s'));
     }
 }

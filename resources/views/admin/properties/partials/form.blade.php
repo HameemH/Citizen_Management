@@ -56,3 +56,17 @@
     <label class="block text-sm font-medium text-gray-700">Rent price</label>
     <input type="number" step="0.01" name="rent_price" value="{{ old('rent_price', optional($property)->rent_price) }}" class="mt-1 w-full border rounded">
 </div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Assessed Value (BDT)</label>
+        <input type="number" step="0.01" name="assessed_value" value="{{ old('assessed_value', optional($property)->assessed_value) }}" class="mt-1 w-full border rounded">
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Land Use</label>
+        <input type="text" name="land_use" value="{{ old('land_use', optional($property)->land_use) }}" class="mt-1 w-full border rounded" placeholder="Residential, Commercial...">
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700">Last Valuation Date</label>
+        <input type="date" name="last_valuation_at" value="{{ old('last_valuation_at', optional(optional($property)->last_valuation_at)->format('Y-m-d')) }}" class="mt-1 w-full border rounded">
+    </div>
+</div>

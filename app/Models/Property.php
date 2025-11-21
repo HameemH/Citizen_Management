@@ -21,6 +21,9 @@ class Property extends Model
         'is_active',
         'is_available_for_rent',
         'rent_price',
+        'assessed_value',
+        'land_use',
+        'last_valuation_at',
         'description',
     ];
 
@@ -29,6 +32,8 @@ class Property extends Model
         'is_available_for_rent' => 'boolean',
         'rent_price' => 'decimal:2',
         'area_sqft' => 'decimal:2',
+        'assessed_value' => 'decimal:2',
+        'last_valuation_at' => 'datetime',
     ];
 
     public function owner()

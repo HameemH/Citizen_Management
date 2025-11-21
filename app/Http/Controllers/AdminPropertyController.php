@@ -46,6 +46,9 @@ class AdminPropertyController extends Controller
             'description' => 'nullable|string',
             'is_available_for_rent' => 'nullable|boolean',
             'rent_price' => 'nullable|numeric|min:0',
+            'assessed_value' => 'nullable|numeric|min:0',
+            'land_use' => 'nullable|string|max:50',
+            'last_valuation_at' => 'nullable|date',
         ]);
 
         $data['is_available_for_rent'] = $request->boolean('is_available_for_rent');
@@ -77,6 +80,9 @@ class AdminPropertyController extends Controller
             'is_active' => 'nullable|boolean',
             'is_available_for_rent' => 'nullable|boolean',
             'rent_price' => 'nullable|numeric|min:0',
+            'assessed_value' => 'nullable|numeric|min:0',
+            'land_use' => 'nullable|string|max:50',
+            'last_valuation_at' => 'nullable|date',
         ]);
 
         $data['is_active'] = $request->boolean('is_active', true);
