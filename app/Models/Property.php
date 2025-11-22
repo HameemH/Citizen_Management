@@ -50,4 +50,9 @@ class Property extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function taxAssessments()
+    {
+        return $this->hasMany(TaxAssessment::class);
+    }
 }

@@ -35,7 +35,12 @@ class PropertyController extends Controller
 
     public function show(Property $property)
     {
-        return view('citizen.properties.show', compact('property'));
+        $canViewValuation = $property->owner_id === Auth::id();
+
+        return view('citizen.properties.show', [
+            'property' => $property,
+            'canViewValuation' => $canViewValuation,
+        ]);
     }
 
     public function createAddRequest()

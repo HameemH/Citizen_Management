@@ -6,6 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\AdminPropertyController;
+use App\Http\Controllers\AdminRevenueController;
+use App\Http\Controllers\AdminTaxController;
+use App\Http\Controllers\CitizenTaxController;
+use App\Http\Controllers\StripeTaxPaymentController;
 
 // Database test route
 Route::get('/db', function () {
@@ -59,6 +63,11 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
         Route::post('/properties/{property}/request/transfer', [PropertyController::class, 'storeTransferRequest'])->name('properties.request.transfer.store');
         Route::post('/properties/{property}/rental-request', [PropertyController::class, 'submitRentalRequest'])->name('properties.rental-request');
         Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+
+        Route::get('/taxes', [CitizenTaxController::class, 'index'])->name('taxes.index');
+        Route::post('/taxes/{taxAssessment}/pay', [StripeTaxPaymentController::class, 'create'])->name('taxes.pay');
+        Route::get('/taxes/payment/success', [StripeTaxPaymentController::class, 'success'])->name('taxes.payment.success');
+        Route::get('/taxes/payments/{taxPayment}/receipt', [CitizenTaxController::class, 'receipt'])->name('taxes.payments.receipt');
     });
 });
 
@@ -88,6 +97,17 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/rental-requests', [AdminPropertyController::class, 'rentalRequests'])->name('properties.rentals');
         Route::post('/rental-requests/{rentalRequest}', [AdminPropertyController::class, 'handleRental'])->name('rental-requests.handle');
+
+        Route::get('/taxes', [AdminTaxController::class, 'index'])->name('taxes.index');
+        Route::get('/taxes/create', [AdminTaxController::class, 'create'])->name('taxes.create');
+        Route::post('/taxes', [AdminTaxController::class, 'store'])->name('taxes.store');
+        Route::get('/taxes/{taxAssessment}', [AdminTaxController::class, 'show'])->name('taxes.show');
+        Route::post('/taxes/{taxAssessment}/issue', [AdminTaxController::class, 'issue'])->name('taxes.issue');
+        Route::post('/taxes/{taxAssessment}/payments', [AdminTaxController::class, 'recordPayment'])->name('taxes.payments.store');
+
+        Route::get('/revenue', [AdminRevenueController::class, 'index'])->name('revenue.index');
+        Route::get('/revenue/export', [AdminRevenueController::class, 'export'])->name('revenue.export');
+        Route::get('/revenue/export-valuations', [AdminRevenueController::class, 'exportValuations'])->name('revenue.export-valuations');
     });
 });
 

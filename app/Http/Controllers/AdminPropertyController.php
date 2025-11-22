@@ -6,9 +6,11 @@ use App\Models\Property;
 use App\Models\PropertyRequest;
 use App\Models\RentalRequest;
 use App\Models\User;
+use App\Notifications\PropertyTransferCompleted;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class AdminPropertyController extends Controller
 {
@@ -181,8 +183,26 @@ class AdminPropertyController extends Controller
         if ($request->type === 'transfer') {
             $target = User::where('email', $data['target_email'] ?? null)->first();
             if ($target) {
+                $previousOwner = $request->property->owner;
                 $request->property->update(['owner_id' => $target->id]);
+
+                $this->notifyTransferCompleted($request, $target, $previousOwner);
             }
         }
+    }
+
+    protected function notifyTransferCompleted(PropertyRequest $propertyRequest, User $newOwner, ?User $previousOwner): void
+    {
+        $property = $propertyRequest->property->fresh(['owner']);
+        $recipients = collect([$newOwner, $propertyRequest->user])
+            ->filter()
+            ->unique(fn ($user) => $user->id)
+            ->all();
+
+        if (empty($recipients)) {
+            return;
+        }
+
+        Notification::send($recipients, new PropertyTransferCompleted($property, $previousOwner));
     }
 }

@@ -12,6 +12,8 @@
         $adminDisplayName = Auth::user()->display_name;
         $pendingPropertyRequests = \App\Models\PropertyRequest::where('status', 'pending')->count();
         $pendingRentalRequests = \App\Models\RentalRequest::where('status', 'pending')->count();
+        $outstandingAssessments = \App\Models\TaxAssessment::outstanding()->count();
+        $overdueBadge = app(\App\Services\RevenueDashboardService::class)->getOverdueCount();
     @endphp
     <div class="flex min-h-screen h-full bg-gray-100">
         <!-- Admin Sidebar -->
@@ -97,12 +99,34 @@
                         </a>
                     </div>
 
-                    <a href="#" 
-                       class="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-100 hover:bg-indigo-600">
-                        <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
-                        </svg>
-                        Tax Management
+                    <a href="{{ route('admin.taxes.index') }}" 
+                       class="group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.taxes.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600' }}">
+                        <span class="flex items-center">
+                            <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                            Tax Management
+                        </span>
+                        @if($outstandingAssessments > 0)
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                {{ $outstandingAssessments }}
+                            </span>
+                        @endif
+                    </a>
+
+                    <a href="{{ route('admin.revenue.index') }}" 
+                       class="group flex items-center justify-between px-2 py-2 text-sm font-medium rounded-md {{ request()->routeIs('admin.revenue.*') ? 'bg-indigo-800 text-white' : 'text-indigo-100 hover:bg-indigo-600' }}">
+                        <span class="flex items-center">
+                            <svg class="mr-3 h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V3h2v8h-2zm-4 4V7H5v8h2zm8 6V5h-2v16h2zm4-10V9h-2v2h2z"/>
+                            </svg>
+                            Revenue & Compliance
+                        </span>
+                        @if($overdueBadge > 0)
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                {{ $overdueBadge }}
+                            </span>
+                        @endif
                     </a>
 
                     <a href="#" 

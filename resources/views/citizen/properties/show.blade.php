@@ -36,20 +36,27 @@
 
         <div class="mt-6 border-t pt-4">
             <p class="text-sm font-semibold text-gray-700 mb-2">Valuation Snapshot</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div class="bg-gray-50 rounded p-3">
-                    <p class="text-gray-500">Assessed Value</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $property->assessed_value ? 'BDT ' . number_format($property->assessed_value, 2) : 'Not set' }}</p>
+
+            @if($canViewValuation)
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div class="bg-gray-50 rounded p-3">
+                        <p class="text-gray-500">Assessed Value</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ $property->assessed_value ? 'BDT ' . number_format($property->assessed_value, 2) : 'Not set' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded p-3">
+                        <p class="text-gray-500">Land Use</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ $property->land_use ?? 'Not set' }}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded p-3">
+                        <p class="text-gray-500">Last Valuation</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ $property->last_valuation_at ? $property->last_valuation_at->format('M d, Y') : 'Not recorded' }}</p>
+                    </div>
                 </div>
-                <div class="bg-gray-50 rounded p-3">
-                    <p class="text-gray-500">Land Use</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $property->land_use ?? 'Not set' }}</p>
+            @else
+                <div class="bg-yellow-50 border border-yellow-200 text-yellow-900 rounded p-4 text-sm">
+                    Valuation data is restricted to the property owner. Request the owner to share details if you need verification.
                 </div>
-                <div class="bg-gray-50 rounded p-3">
-                    <p class="text-gray-500">Last Valuation</p>
-                    <p class="text-lg font-semibold text-gray-900">{{ $property->last_valuation_at ? $property->last_valuation_at->format('M d, Y') : 'Not recorded' }}</p>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 

@@ -31,4 +31,12 @@ return [
         ],
     ],
 
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'currency' => env('STRIPE_CURRENCY', 'bdt'),
+        'success_url' => env('STRIPE_SUCCESS_URL', env('APP_URL') . '/citizen/taxes/payment/success?session_id={CHECKOUT_SESSION_ID}'),
+        'cancel_url' => env('STRIPE_CANCEL_URL', env('APP_URL') . '/citizen/taxes'),
+    ],
+
 ];
