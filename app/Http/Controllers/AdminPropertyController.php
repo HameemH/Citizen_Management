@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Property;
 use App\Models\PropertyRequest;
+use App\Models\RentAgreement;
 use App\Models\RentalRequest;
 use App\Models\User;
 use App\Notifications\PropertyTransferCompleted;
@@ -11,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class AdminPropertyController extends Controller
 {
@@ -148,6 +150,11 @@ class AdminPropertyController extends Controller
         $validated = $request->validate([
             'action' => 'required|in:approve,reject',
             'decision_note' => 'nullable|string|max:500',
+            'start_date' => 'required_if:action,approve|date',
+            'end_date' => 'required_if:action,approve|date|after:start_date',
+            'monthly_rent' => 'required_if:action,approve|numeric|min:0',
+            'security_deposit' => 'nullable|numeric|min:0',
+            'terms_text' => 'nullable|string',
         ]);
 
         $rentalRequest->update([
@@ -156,6 +163,10 @@ class AdminPropertyController extends Controller
             'decided_by' => auth()->id(),
             'decided_at' => Carbon::now(),
         ]);
+
+        if ($validated['action'] === 'approve') {
+            $this->createRentAgreement($rentalRequest, $validated);
+        }
 
         return back()->with('status', 'Rental request updated.');
     }
@@ -189,6 +200,35 @@ class AdminPropertyController extends Controller
                 $this->notifyTransferCompleted($request, $target, $previousOwner);
             }
         }
+    }
+
+    protected function createRentAgreement(RentalRequest $rentalRequest, array $validated): void
+    {
+        $property = $rentalRequest->property->refresh();
+        $agreementNumber = 'RA-' . now()->format('Ymd') . '-' . Str::upper(Str::random(5));
+        $terms = $validated['terms_text'] ?? $this->defaultAgreementTerms($property->title, $validated['monthly_rent']);
+
+        RentAgreement::create([
+            'property_id' => $property->id,
+            'rental_request_id' => $rentalRequest->id,
+            'landlord_id' => $property->owner_id,
+            'tenant_id' => $rentalRequest->user_id,
+            'approved_by' => auth()->id(),
+            'agreement_number' => $agreementNumber,
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'monthly_rent' => $validated['monthly_rent'],
+            'security_deposit' => $validated['security_deposit'] ?? 0,
+            'terms_text' => $terms,
+            'generated_at' => now(),
+        ]);
+    }
+
+    protected function defaultAgreementTerms(string $propertyTitle, float $monthlyRent): string
+    {
+        return <<<TEXT
+This agreement is made between the landlord and tenant for {$propertyTitle}. The tenant agrees to remit a monthly rent of BDT {$monthlyRent} on or before the 5th day of each month. Both parties agree to comply with municipal regulations, maintain the property in good condition, and provide 30 days' notice for termination. Security deposits may be retained to cover unpaid dues or damages.
+TEXT;
     }
 
     protected function notifyTransferCompleted(PropertyRequest $propertyRequest, User $newOwner, ?User $previousOwner): void

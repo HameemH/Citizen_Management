@@ -22,10 +22,15 @@
                         <p class="text-sm text-gray-500">Requested by {{ $request->user->display_name }} · {{ $request->created_at->diffForHumans() }}</p>
                         <p class="text-sm text-gray-600">{{ $request->message ?? 'No message provided.' }}</p>
                     </div>
-                    <form method="POST" action="{{ route('admin.rental-requests.handle', $request) }}" class="flex flex-col md:flex-row gap-2">
+                    <form method="POST" action="{{ route('admin.rental-requests.handle', $request) }}" class="grid gap-2 md:grid-cols-5">
                         @csrf
-                        <input type="text" name="decision_note" placeholder="Decision note" class="border rounded p-2">
-                        <div class="flex gap-2">
+                        <input type="date" name="start_date" class="border rounded p-2" placeholder="Start date">
+                        <input type="date" name="end_date" class="border rounded p-2" placeholder="End date">
+                        <input type="number" name="monthly_rent" step="0.01" class="border rounded p-2" placeholder="Monthly rent">
+                        <input type="number" name="security_deposit" step="0.01" class="border rounded p-2" placeholder="Security deposit">
+                        <input type="text" name="decision_note" placeholder="Decision note" class="border rounded p-2 md:col-span-2">
+                        <textarea name="terms_text" rows="2" class="border rounded p-2 md:col-span-3" placeholder="Custom terms (optional)"></textarea>
+                        <div class="flex gap-2 md:col-span-5">
                             <button name="action" value="approve" class="px-4 py-2 bg-green-600 text-white rounded">Approve</button>
                             <button name="action" value="reject" class="px-4 py-2 bg-red-600 text-white rounded">Reject</button>
                         </div>

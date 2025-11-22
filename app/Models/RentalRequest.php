@@ -37,4 +37,9 @@ class RentalRequest extends Model
     {
         return $this->belongsTo(User::class, 'decided_by');
     }
+
+    public function rentAgreement()
+    {
+        return $this->hasOne(RentAgreement::class);
+    }
 }

@@ -6,10 +6,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\AdminPropertyController;
+use App\Http\Controllers\AdminRentAgreementController;
 use App\Http\Controllers\AdminRevenueController;
 use App\Http\Controllers\AdminTaxController;
+use App\Http\Controllers\CitizenRentAgreementController;
 use App\Http\Controllers\CitizenTaxController;
 use App\Http\Controllers\StripeTaxPaymentController;
+use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\AdminComplaintController;
 
 // Database test route
 Route::get('/db', function () {
@@ -64,10 +68,18 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
         Route::post('/properties/{property}/rental-request', [PropertyController::class, 'submitRentalRequest'])->name('properties.rental-request');
         Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 
+        Route::get('/rent-agreements', [CitizenRentAgreementController::class, 'index'])->name('rent-agreements.index');
+        Route::get('/rent-agreements/{rentAgreement}', [CitizenRentAgreementController::class, 'show'])->name('rent-agreements.show');
+
         Route::get('/taxes', [CitizenTaxController::class, 'index'])->name('taxes.index');
         Route::post('/taxes/{taxAssessment}/pay', [StripeTaxPaymentController::class, 'create'])->name('taxes.pay');
         Route::get('/taxes/payment/success', [StripeTaxPaymentController::class, 'success'])->name('taxes.payment.success');
         Route::get('/taxes/payments/{taxPayment}/receipt', [CitizenTaxController::class, 'receipt'])->name('taxes.payments.receipt');
+
+        Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
+        Route::get('/complaints/create', [ComplaintController::class, 'create'])->name('complaints.create');
+        Route::post('/complaints', [ComplaintController::class, 'store'])->name('complaints.store');
+        Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])->name('complaints.show');
     });
 });
 
@@ -98,6 +110,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rental-requests', [AdminPropertyController::class, 'rentalRequests'])->name('properties.rentals');
         Route::post('/rental-requests/{rentalRequest}', [AdminPropertyController::class, 'handleRental'])->name('rental-requests.handle');
 
+        Route::get('/rent-agreements', [AdminRentAgreementController::class, 'index'])->name('rent-agreements.index');
+        Route::get('/rent-agreements/{rentAgreement}', [AdminRentAgreementController::class, 'show'])->name('rent-agreements.show');
+
         Route::get('/taxes', [AdminTaxController::class, 'index'])->name('taxes.index');
         Route::get('/taxes/create', [AdminTaxController::class, 'create'])->name('taxes.create');
         Route::post('/taxes', [AdminTaxController::class, 'store'])->name('taxes.store');
@@ -108,6 +123,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/revenue', [AdminRevenueController::class, 'index'])->name('revenue.index');
         Route::get('/revenue/export', [AdminRevenueController::class, 'export'])->name('revenue.export');
         Route::get('/revenue/export-valuations', [AdminRevenueController::class, 'exportValuations'])->name('revenue.export-valuations');
+
+        Route::get('/complaints', [AdminComplaintController::class, 'index'])->name('complaints.index');
+        Route::get('/complaints/{complaint}', [AdminComplaintController::class, 'show'])->name('complaints.show');
+        Route::put('/complaints/{complaint}', [AdminComplaintController::class, 'update'])->name('complaints.update');
     });
 });
 
