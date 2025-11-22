@@ -12,6 +12,12 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
+        $ownedProperties = Property::query()
+            ->where('owner_id', Auth::id())
+            ->withCount(['rentalRequests as pending_rental_requests_count' => fn ($query) => $query->where('status', 'pending')])
+            ->latest()
+            ->get();
+
         $properties = Property::query()
             ->active()
             ->when($request->filled('q'), function ($query) use ($request) {
@@ -25,12 +31,13 @@ class PropertyController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $userRequests = PropertyRequest::where('user_id', Auth::id())
+        $userRequests = PropertyRequest::with('property')
+            ->where('user_id', Auth::id())
             ->latest()
             ->take(5)
             ->get();
 
-        return view('citizen.properties.index', compact('properties', 'userRequests'));
+        return view('citizen.properties.index', compact('properties', 'ownedProperties', 'userRequests'));
     }
 
     public function show(Property $property)

@@ -31,7 +31,9 @@ class AdminPropertyController extends Controller
 
     public function create()
     {
-        $citizens = User::where('role', 'citizen')->orderBy('display_name')->get();
+        $citizens = User::where('role', 'citizen')
+            ->orderByRaw('COALESCE(full_name, name, email) asc')
+            ->get();
 
         return view('admin.properties.create', compact('citizens'));
     }
@@ -64,7 +66,9 @@ class AdminPropertyController extends Controller
 
     public function edit(Property $property)
     {
-        $citizens = User::where('role', 'citizen')->orderBy('display_name')->get();
+        $citizens = User::where('role', 'citizen')
+            ->orderByRaw('COALESCE(full_name, name, email) asc')
+            ->get();
 
         return view('admin.properties.edit', compact('property', 'citizens'));
     }
@@ -107,6 +111,7 @@ class AdminPropertyController extends Controller
     public function requests()
     {
         $requests = PropertyRequest::with(['user', 'property.owner'])
+            ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
