@@ -65,13 +65,19 @@ class StripeTaxPaymentController extends Controller
         }
 
         $assessmentId = $session->metadata->assessment_id ?? null;
+        if (!$assessmentId) {
+            return redirect()->route('citizen.taxes.index')->withErrors([
+                'payment' => 'Payment succeeded but we could not find the linked assessment. Please contact support with your receipt.',
+            ]);
+        }
+
         $user = Auth::user();
 
         $assessment = TaxAssessment::where('id', $assessmentId)
             ->where('owner_id', $user->id)
             ->firstOrFail();
 
-        $reference = $session->payment_intent ?? $session->id;
+        $reference = $this->resolveReference($session);
         $amount = $this->fromStripeAmount($session->amount_total ?? 0, $assessment->tax_amount);
 
         TaxPayment::firstOrCreate(
@@ -109,5 +115,20 @@ class StripeTaxPaymentController extends Controller
         }
 
         return round($amountTotal / 100, 2);
+    }
+
+    private function resolveReference($session): string
+    {
+        $intent = $session->payment_intent ?? null;
+
+        if (is_object($intent)) {
+            return (string) ($intent->id ?? $session->id);
+        }
+
+        if (is_string($intent) && $intent !== '') {
+            return $intent;
+        }
+
+        return (string) ($session->id ?? uniqid('stripe_', true));
     }
 }

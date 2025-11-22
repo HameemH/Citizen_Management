@@ -73,6 +73,7 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
         Route::get('/rent-agreements/{rentAgreement}', [CitizenRentAgreementController::class, 'show'])->name('rent-agreements.show');
 
         Route::get('/taxes', [CitizenTaxController::class, 'index'])->name('taxes.index');
+        Route::get('/taxes/{taxAssessment}/pay', [CitizenTaxController::class, 'showPay'])->name('taxes.pay.show');
         Route::post('/taxes/{taxAssessment}/pay', [StripeTaxPaymentController::class, 'create'])->name('taxes.pay');
         Route::get('/taxes/payment/success', [StripeTaxPaymentController::class, 'success'])->name('taxes.payment.success');
         Route::get('/taxes/payments/{taxPayment}/receipt', [CitizenTaxController::class, 'receipt'])->name('taxes.payments.receipt');

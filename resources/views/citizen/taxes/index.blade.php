@@ -85,10 +85,9 @@
                             <td class="px-6 py-4 text-sm text-gray-600">{{ $assessment->due_date ? $assessment->due_date->format('M d, Y') : '—' }}</td>
                             <td class="px-6 py-4 text-sm">
                                 @if(in_array($assessment->status, ['issued', 'overdue']) && $stripeEnabled)
-                                    <form method="POST" action="{{ route('citizen.taxes.pay', $assessment) }}">
-                                        @csrf
-                                        <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-semibold">Pay with Stripe</button>
-                                    </form>
+                                    <a href="{{ route('citizen.taxes.pay.show', $assessment) }}" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-semibold">
+                                        Pay with Stripe
+                                    </a>
                                 @elseif($assessment->status === 'paid')
                                     <span class="text-green-700 font-semibold text-xs">Paid</span>
                                 @else

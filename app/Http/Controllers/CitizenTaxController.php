@@ -47,6 +47,24 @@ class CitizenTaxController extends Controller
         ]);
     }
 
+    public function showPay(TaxAssessment $taxAssessment)
+    {
+        $this->authorizeAssessment($taxAssessment);
+
+        if (!in_array($taxAssessment->status, ['issued', 'overdue'])) {
+            return redirect()->route('citizen.taxes.index')->withErrors([
+                'payment' => 'Only issued or overdue assessments can be paid online.',
+            ]);
+        }
+
+        $stripeEnabled = filled(config('services.stripe.key')) && filled(config('services.stripe.secret'));
+
+        return view('citizen.taxes.pay', [
+            'assessment' => $taxAssessment->loadMissing('property'),
+            'stripeEnabled' => $stripeEnabled,
+        ]);
+    }
+
     public function receipt(TaxPayment $taxPayment)
     {
         $this->authorizePayment($taxPayment);
@@ -61,6 +79,13 @@ class CitizenTaxController extends Controller
     protected function authorizePayment(TaxPayment $payment): void
     {
         if ($payment->payer_id !== Auth::id()) {
+            abort(403);
+        }
+    }
+
+    protected function authorizeAssessment(TaxAssessment $assessment): void
+    {
+        if ($assessment->owner_id !== Auth::id()) {
             abort(403);
         }
     }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\TaxAssessment;
 use App\Models\User;
+use Illuminate\Support\Facades\URL;
 use Stripe\Checkout\Session;
 use Stripe\StripeClient;
 
@@ -53,14 +54,22 @@ class StripeCheckoutService
 
     private function resolveSuccessUrl(): string
     {
-        return config('services.stripe.success_url')
-            ?? route('citizen.taxes.payment.success', [], false) . '?session_id={CHECKOUT_SESSION_ID}';
+        if ($configured = config('services.stripe.success_url')) {
+            return $configured;
+        }
+
+        $relativePath = route('citizen.taxes.payment.success', [], false);
+
+        return URL::to($relativePath) . '?session_id={CHECKOUT_SESSION_ID}';
     }
 
     private function resolveCancelUrl(): string
     {
-        return config('services.stripe.cancel_url')
-            ?? route('citizen.taxes.index', [], false);
+        if ($configured = config('services.stripe.cancel_url')) {
+            return $configured;
+        }
+
+        return URL::to(route('citizen.taxes.index', [], false));
     }
 
     private function toStripeAmount(float $amount): int
