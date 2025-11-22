@@ -63,6 +63,19 @@ class AdminTaxController extends Controller
 
         $property = Property::findOrFail($data['property_id']);
 
+        $lockedAssessment = TaxAssessment::where('property_id', $property->id)
+            ->where('fiscal_year', $data['fiscal_year'])
+            ->whereIn('status', ['issued', 'paid'])
+            ->first();
+
+        if ($lockedAssessment) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'property_id' => 'An assessment for this property and fiscal year is already issued or paid.',
+                ]);
+        }
+
         $assessment = $this->assessmentService->generate($property, $data['fiscal_year'], $data['assessed_value'] ?? null);
         if (!empty($data['note'])) {
             $assessment->notes = trim($assessment->notes . PHP_EOL . $data['note']);
