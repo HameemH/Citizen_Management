@@ -143,7 +143,8 @@ class AdminPropertyController extends Controller
 
     public function rentalRequests()
     {
-        $requests = RentalRequest::with(['property', 'user'])
+        $requests = RentalRequest::with(['property.owner', 'user'])
+            ->where('status', 'pending')
             ->latest()
             ->paginate(15);
 
@@ -161,6 +162,12 @@ class AdminPropertyController extends Controller
             'security_deposit' => 'nullable|numeric|min:0',
             'terms_text' => 'nullable|string',
         ]);
+
+        if ($validated['action'] === 'approve' && !$rentalRequest->ready_for_admin) {
+            return back()->withErrors([
+                'action' => 'Owner confirmation is required before municipal approval.',
+            ]);
+        }
 
         $rentalRequest->update([
             'status' => $validated['action'] === 'approve' ? 'approved' : 'rejected',

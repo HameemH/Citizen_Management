@@ -12,6 +12,7 @@
     $pendingRentalRequests = \App\Models\RentalRequest::where('status', 'pending')->count();
     $totalArea = \App\Models\Property::sum('area_sqft');
     $annualRentPipeline = \App\Models\Property::whereNotNull('rent_price')->sum('rent_price');
+    $totalAssessedValue = \App\Models\Property::sum('assessed_value');
     $recentPropertyRequests = \App\Models\PropertyRequest::with(['property', 'user'])->latest()->limit(4)->get();
 @endphp
 <div class="space-y-6">
@@ -182,6 +183,45 @@
                 </div>
             </div>
         </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Portfolio Valuation</dt>
+                            <dd class="text-lg font-medium text-gray-900">BDT {{ number_format($totalAssessedValue, 2) }}</dd>
+                            <dd class="text-sm font-medium text-teal-600">{{ number_format($totalArea) }} sq.ft under management</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17l4 4 4-4m0-5l-4-4-4 4" />
+                        </svg>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Annual Rent Pipeline</dt>
+                            <dd class="text-lg font-medium text-gray-900">BDT {{ number_format($annualRentPipeline, 2) }}</dd>
+                            <dd class="text-sm font-medium text-teal-600">{{ $pendingRentalRequests }} pending rental intents</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Quick Actions -->
@@ -199,18 +239,9 @@
                             <p class="text-sm font-medium text-gray-900">Pending Requests</p>
                             <p class="text-sm text-gray-600">{{ \App\Models\User::where('verification_status', 'pending')->count() }} citizens waiting for verification</p>
                         </div>
-                        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+                        <a href="{{ route('admin.verification.index') }}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
                             Review Now
-                        </button>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">Blocked NIDs</p>
-                            <p class="text-sm text-gray-600">{{ \App\Models\FakeNid::where('is_blocked', true)->count() }} NIDs are blocked in the system</p>
-                        </div>
-                        <button class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-700">
-                            View Blocked
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -226,6 +257,10 @@
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-600">Total Surface Area</span>
                     <span class="text-sm font-semibold text-gray-900">{{ number_format($totalArea) }} sq.ft</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Total Property Valuation</span>
+                    <span class="text-sm font-semibold text-gray-900">BDT {{ number_format($totalAssessedValue, 2) }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-sm text-gray-600">Annual Rent Pipeline</span>

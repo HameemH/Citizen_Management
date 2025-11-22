@@ -66,6 +66,7 @@ Route::middleware(['auth', 'citizen'])->prefix('citizen')->name('citizen.')->gro
         Route::get('/properties/{property}/request/transfer', [PropertyController::class, 'createTransferRequest'])->name('properties.request.transfer');
         Route::post('/properties/{property}/request/transfer', [PropertyController::class, 'storeTransferRequest'])->name('properties.request.transfer.store');
         Route::post('/properties/{property}/rental-request', [PropertyController::class, 'submitRentalRequest'])->name('properties.rental-request');
+        Route::post('/rental-requests/{rentalRequest}/owner-confirm', [PropertyController::class, 'confirmRentalRequest'])->name('rental-requests.owner-confirm');
         Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 
         Route::get('/rent-agreements', [CitizenRentAgreementController::class, 'index'])->name('rent-agreements.index');

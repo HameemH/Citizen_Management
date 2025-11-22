@@ -46,6 +46,11 @@ class Property extends Model
         return $this->hasMany(RentalRequest::class);
     }
 
+    public function rentAgreements()
+    {
+        return $this->hasMany(RentAgreement::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

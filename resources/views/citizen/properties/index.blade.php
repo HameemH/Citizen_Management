@@ -39,9 +39,14 @@
                                     <h3 class="text-lg font-semibold text-gray-900">{{ $property->title }}</h3>
                                     <p class="text-sm text-gray-500">{{ $property->address_line }}, {{ $property->city }}</p>
                                 </div>
-                                @if($property->pending_rental_requests_count)
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ $property->pending_rental_requests_count }} rental request(s)</span>
-                                @endif
+                                <div class="flex flex-col items-end gap-1">
+                                    @if($property->active_rental_count)
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Currently rented</span>
+                                    @endif
+                                    @if($property->pending_rental_requests_count)
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ $property->pending_rental_requests_count }} rental request(s)</span>
+                                    @endif
+                                </div>
                             </div>
 
                             <p class="text-sm text-gray-600">{{ Str::limit($property->description, 140) }}</p>
@@ -53,7 +58,15 @@
                                 </div>
                                 <div>
                                     <dt class="text-xs uppercase tracking-wide text-gray-500">Rent status</dt>
-                                    <dd class="font-semibold">{{ $property->is_available_for_rent ? 'Available for rent' : 'Not listed for rent' }}</dd>
+                                    <dd class="font-semibold">
+                                        @if($property->active_rental_count)
+                                            Currently rented
+                                        @elseif($property->is_available_for_rent)
+                                            Available for rent
+                                        @else
+                                            Not listed for rent
+                                        @endif
+                                    </dd>
                                 </div>
                                 <div>
                                     <dt class="text-xs uppercase tracking-wide text-gray-500">Assessed value</dt>
@@ -93,7 +106,6 @@
                         <th class="px-4 py-3 text-left">Property</th>
                         <th class="px-4 py-3 text-left">Status</th>
                         <th class="px-4 py-3 text-left">Submitted</th>
-                        <th class="px-4 py-3 text-left">Action</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
@@ -111,22 +123,10 @@
                                 ])">{{ ucfirst($request->status) }}</span>
                             </td>
                             <td class="px-4 py-3 text-gray-500">{{ $request->created_at->format('M d, Y') }}</td>
-                            <td class="px-4 py-3 space-x-2">
-                                @if($request->property)
-                                    <a href="{{ route('citizen.properties.show', $request->property) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded border border-green-600 text-green-700">View details</a>
-                                    @if($request->type === 'update')
-                                        <a href="{{ route('citizen.properties.request.update', $request->property) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded border border-gray-300 text-gray-700">Submit another update</a>
-                                    @elseif($request->type === 'transfer')
-                                        <a href="{{ route('citizen.properties.request.transfer', $request->property) }}" class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded border border-gray-300 text-gray-700">Continue transfer</a>
-                                    @endif
-                                @else
-                                    <span class="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded border border-gray-200 text-gray-500">Awaiting approval</span>
-                                @endif
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-6 text-center text-gray-500">No property requests submitted yet.</td>
+                            <td colspan="4" class="px-4 py-6 text-center text-gray-500">No property requests submitted yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -175,6 +175,76 @@
         <div>
             {{ $properties->links() }}
         </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+                <h4 class="text-lg font-semibold text-gray-900">My Rental Activity</h4>
+                <p class="text-sm text-gray-500">See where you currently rent and track pending municipal approvals.</p>
+            </div>
+        </div>
+
+        @if($activeRentals->isEmpty() && $userRentalRequests->isEmpty())
+            <p class="text-sm text-gray-500">You haven’t submitted any rental requests yet.</p>
+        @else
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h5 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Active Rentals</h5>
+                    @forelse($activeRentals as $agreement)
+                        <div class="border border-gray-100 rounded-lg p-4 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <p class="font-semibold text-gray-900">{{ $agreement->property->title ?? 'Property removed' }}</p>
+                                <span class="text-xs text-gray-500">Landlord: {{ optional($agreement->property?->owner)->display_name ?? 'Municipality' }}</span>
+                            </div>
+                            <p class="text-sm text-gray-600">{{ $agreement->property->address_line ?? 'Address unavailable' }}, {{ $agreement->property->city ?? '' }}</p>
+                            <p class="text-sm text-gray-700">BDT {{ number_format($agreement->monthly_rent, 2) }} / month</p>
+                            <p class="text-xs text-gray-500">{{ $agreement->start_date?->format('M d, Y') }} - {{ $agreement->end_date?->format('M d, Y') }}</p>
+                        </div>
+                    @empty
+                        <p class="text-sm text-gray-500">No active rental agreements.</p>
+                    @endforelse
+                </div>
+                <div>
+                    <h5 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Submitted Rental Requests</h5>
+                    <div class="border border-gray-100 rounded-lg overflow-hidden">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">Property</th>
+                                    <th class="px-4 py-2 text-left">Status</th>
+                                    <th class="px-4 py-2 text-left">Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @forelse($userRentalRequests as $request)
+                                    <tr>
+                                        <td class="px-4 py-2">
+                                            <p class="font-semibold text-gray-900">{{ $request->property->title ?? 'Property removed' }}</p>
+                                            <p class="text-xs text-gray-500">Owner: {{ optional($request->property?->owner)->display_name ?? 'Municipality' }}</p>
+                                        </td>
+                                        <td class="px-4 py-2">
+                                            <span class="px-2 py-1 rounded-full text-xs font-semibold @class([
+                                                'bg-yellow-100 text-yellow-800' => $request->status === 'pending',
+                                                'bg-green-100 text-green-800' => $request->status === 'approved',
+                                                'bg-red-100 text-red-800' => $request->status === 'rejected',
+                                            ])">
+                                                {{ ucfirst($request->status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-2 text-gray-500">{{ $request->created_at->format('M d, Y') }}</td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="px-4 py-4 text-sm text-gray-500 text-center">No rental requests submitted.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 @endsection

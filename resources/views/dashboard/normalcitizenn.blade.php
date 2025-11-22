@@ -12,6 +12,12 @@
     $verificationStatusLabel = $isVerified
         ? 'verified'
         : ($hasPendingRequest ? 'pending review' : 'not started');
+    $activeRentAgreements = \App\Models\RentAgreement::with(['property.owner'])
+        ->where('tenant_id', $currentUser->id)
+        ->where('status', 'active')
+        ->whereDate('end_date', '>=', now())
+        ->orderBy('end_date')
+        ->get();
 @endphp
 <div class="space-y-6">
     @if(session('status'))
@@ -82,6 +88,26 @@
             </div>
         </div>
     </div>
+    @endif
+
+    @if($activeRentAgreements->isNotEmpty())
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">My Active Rentals</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach($activeRentAgreements as $agreement)
+                    <div class="border border-gray-100 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-semibold text-gray-900">{{ $agreement->property->title ?? 'Property removed' }}</p>
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Owner: {{ optional($agreement->property?->owner)->display_name ?? 'Municipality' }}</p>
+                        <p class="text-sm text-gray-600 mt-2">BDT {{ number_format($agreement->monthly_rent, 2) }} / month</p>
+                        <p class="text-xs text-gray-500">{{ optional($agreement->start_date)->format('M d, Y') }} - {{ optional($agreement->end_date)->format('M d, Y') }}</p>
+                        <a href="{{ route('citizen.rent-agreements.show', $agreement) }}" class="inline-flex items-center text-xs text-green-700 font-semibold mt-3">View agreement →</a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
     @endif
 
     <!-- Quick Stats -->
