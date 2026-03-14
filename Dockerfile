@@ -15,6 +15,8 @@ FROM php:8.3-cli-alpine AS app
 WORKDIR /var/www/html
 
 RUN apk add --no-cache \
+    mysql \
+    mysql-client \
     icu-dev \
     libzip-dev \
     libpng-dev \
@@ -23,8 +25,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     sqlite-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql pdo_sqlite mbstring intl zip gd \
-    && rm -rf /tmp/*
+    && docker-php-ext-install pdo pdo_mysql mbstring intl zip gd
 
 COPY . .
 COPY --from=vendor /app/vendor ./vendor
@@ -32,8 +33,13 @@ COPY --from=assets /app/public/build ./public/build
 
 RUN rm -f bootstrap/cache/*.php \
     && mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && mkdir -p /var/lib/mysql \
+    && chown -R mysql:mysql /var/lib/mysql \
+    && mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 8000
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["/start.sh"]
