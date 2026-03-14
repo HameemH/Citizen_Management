@@ -1,14 +1,19 @@
 #!/bin/sh
 
+echo "Preparing MySQL directories..."
+
+mkdir -p /run/mysqld
+mkdir -p /var/lib/mysql
+
 echo "Starting MariaDB..."
 
-mysqld --datadir=/var/lib/mysql --user=root &
+mariadbd --user=root --datadir=/var/lib/mysql &
 
 sleep 5
 
 echo "Creating database..."
 
-mysql -u root -e "CREATE DATABASE IF NOT EXISTS citizen_management;"
+mariadb -u root -e "CREATE DATABASE IF NOT EXISTS citizen_management;"
 
 echo "Running migrations..."
 
